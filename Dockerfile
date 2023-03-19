@@ -1,4 +1,4 @@
-FROM node:lts-alpine as BUILD
+FROM node:lts as BUILD
 WORKDIR /opt/dnspod-ddns
 COPY . .
 RUN node modules/ci.js && npm ci && npm prune --omit=dev && curl -sf https://raw.githubusercontent.com/tuananh/node-prune/develop/prune.sh | sh
