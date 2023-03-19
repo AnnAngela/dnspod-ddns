@@ -1,12 +1,7 @@
 import console, { globalConsole } from "./console.js";
 console.info("Start initialization...");
 import jsonModule from "./jsonModule.js";
-const isInGithubActions = process.env.GITHUB_ACTIONS === "true";
 
-if (!isInGithubActions) {
-    console.info("Not running in github actions, exit.");
-    process.exit(0);
-}
 const packageLockFile = "package-lock.json";
 console.info("Start to read", packageLockFile);
 const packageLockFileContent = await jsonModule.readFile(packageLockFile);
