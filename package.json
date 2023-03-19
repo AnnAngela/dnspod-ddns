@@ -1,0 +1,14 @@
+{
+    "type": "module",
+    "dependencies": {
+        "cron": "^2.3.0",
+        "node-fetch": "^3.3.1"
+    },
+    "name": "dnspod-ddns",
+    "description": "A DDNS automatically register for DNSPod",
+    "author": {
+        "name": "AnnAngela",
+        "url": "https://github.com/AnnAngela/"
+    },
+    "version": "0.1"
+}
