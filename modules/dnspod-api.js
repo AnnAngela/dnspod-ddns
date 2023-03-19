@@ -1,7 +1,7 @@
-import fs from "fs";
 import fetch from "node-fetch";
+import jsonModule from "./jsonModule.js";
 
-const { version } = JSON.parse(await fs.promises.readFile("./package.json", { encoding: "utf-8" }));
+const { version } = await jsonModule.readFile("package.json");
 
 /**
  * @param { { action: string, login_token: string, data: Record<string, string | number | boolean> } } 

@@ -1,7 +1,8 @@
+import console, { globalConsole } from "./modules/console.js";
+console.info("Start initialization...");
 import { networkInterfaces } from "os";
 import { CronJob, sendAt, CronTime } from "cron";
 import { ISO } from "./modules/toLocalTimeZoneStrings.js";
-import console, { globalConsole } from "./modules/console.js";
 import apiRequest from "./modules/dnspod-api.js";
 const record_types = {
     IPv4: "A",
