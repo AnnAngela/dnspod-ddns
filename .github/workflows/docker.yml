@@ -12,14 +12,14 @@ on:
     paths:
       - "index.js"
       - "modules"
-      - ".Dockerfile"
+      - "Dockerfile"
       - ".github/workflows/docker.yml"
   pull_request:
     branches: [master]
     paths:
       - "index.js"
       - "modules"
-      - ".Dockerfile"
+      - "Dockerfile"
       - ".github/workflows/docker.yml"
   create:
 
