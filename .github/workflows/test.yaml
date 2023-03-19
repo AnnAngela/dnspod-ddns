@@ -1,0 +1,31 @@
+name: test
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      IMAGE_OWNER: annangela
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+          check-latest: true
+          cache: npm
+
+      - name: test
+        run: node modules/ci.js && npm ci && npm prune --omit=dev && npx node-prune --yes
