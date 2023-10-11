@@ -73,7 +73,7 @@ console.info("\tcron 表达式:", cronTime);
 console.info("\t线路清单（若无则为空）:", recordLines);
 bigBreak(true);
 
-new CronJob({
+CronJob.from({
     start: true,
     runOnInit: true,
     cronTime,
