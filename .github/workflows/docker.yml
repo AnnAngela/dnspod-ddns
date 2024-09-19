@@ -8,14 +8,16 @@ name: docker
 on:
   workflow_dispatch:
   push:
-    branches: [master]
+    branches: 
+      - master
     paths:
       - "index.js"
       - "modules"
       - "Dockerfile"
       - ".github/workflows/docker.yml"
   pull_request:
-    branches: [master]
+    branches: 
+      - master
     paths:
       - "index.js"
       - "modules"
@@ -74,4 +76,4 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          provenance: false
+          provenance: mode=max
