@@ -77,3 +77,4 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: mode=max
+          sbom: true
