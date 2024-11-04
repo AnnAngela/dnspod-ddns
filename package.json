@@ -1,7 +1,7 @@
 {
     "type": "module",
     "dependencies": {
-        "cron": "^3.1.8",
+        "cron": "^3.1.9",
         "node-fetch": "^3.3.2"
     },
     "name": "dnspod-ddns",
