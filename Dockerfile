@@ -17,6 +17,6 @@ ENV NODE_ENV=production \
 
 COPY --from=build /opt/dnspod-ddns/index.js ./index.js
 COPY --from=build /opt/dnspod-ddns/modules ./modules/
-COPY --from=deps  /opt/dnspod-ddns/node_modules ./node_modules/
+COPY --from=build /opt/dnspod-ddns/node_modules ./node_modules/
 
 ENTRYPOINT ["node", "index.js"]
