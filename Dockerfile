@@ -4,6 +4,7 @@ FROM node:${NODE_VERSION} AS build
 WORKDIR /opt/dnspod-ddns
 # 使用 BuildKit 缓存 npm
 RUN --mount=type=cache,id=npm,target=/root/.npm \
+    --mount=type=bind,target=/opt/dnspod-ddns/package.json,source=package.json \
     --mount=type=bind,target=/opt/dnspod-ddns/package-lock.json,source=package-lock.json,readwrite \
     --mount=type=bind,target=/opt/dnspod-ddns/modules/,source=modules/ \
     node modules/ci.js && npm ci --omit=dev --omit=optional --no-audit --no-fund --progress=false
