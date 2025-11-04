@@ -6,7 +6,7 @@ WORKDIR /opt/dnspod-ddns
 COPY package*.json modules/ci.js ./
 # 使用 BuildKit 缓存 npm
 RUN --mount=type=cache,id=npm,target=/root/.npm \
-    node modules/ci.js && npm ci --omit=dev --omit=optional --no-audit --no-fund --progress=false
+    node ci.js && npm ci --omit=dev --omit=optional --no-audit --no-fund --progress=false
 
 FROM node:${NODE_VERSION} AS runtime
 WORKDIR /opt/dnspod-ddns
