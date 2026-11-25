@@ -16,7 +16,11 @@ WORKDIR /opt/dnspod-ddns
 ENV NODE_ENV=production \
     npm_config_loglevel=warn
 
-COPY index.js ./index.js
+COPY index.js ./
+# 2025-11 BuildKit 缓存重构时误删了 modules/ 与 package.json 的 COPY:
+# index.js 依赖 modules/,dnspod-api.js 顶层读取 package.json,缺失则镜像启动即 ENOENT
+COPY modules/ ./modules/
+COPY package.json ./package.json
 COPY --from=build /opt/dnspod-ddns/node_modules ./node_modules/
 
 ENTRYPOINT ["node", "index.js"]
