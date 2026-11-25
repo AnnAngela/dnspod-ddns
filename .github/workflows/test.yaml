@@ -50,7 +50,7 @@ jobs:
           cache: npm
 
       - name: test
-        run: node modules/ci.js && npm ci && npm prune --omit=dev && npx node-prune --yes
+        run: node modules/ci.js && npm ci --registry="$(cat .cache/ci-registry)" --replace-registry-host=always && npm prune --omit=dev && npx node-prune --yes
 
       # 无网络冒烟:伪造不存在的网卡名,runOnInit 会立即触发 onTick 走"网卡不存在"退出路径,
       # 覆盖启动解析、CronJob 创建、首跳、心跳写入全链路,全程零网络请求。

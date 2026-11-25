@@ -2,12 +2,13 @@ ARG NODE_VERSION=24-alpine
 
 FROM node:${NODE_VERSION} AS build
 WORKDIR /opt/dnspod-ddns
-# 使用 BuildKit 缓存 npm
+# 使用 BuildKit 缓存 npm;ci.js 测速选源写 .cache/ci-registry 指针,
+# 由 npm 在安装时原地替换 lock 各 resolved 的 host,全程不改写 lock(故只读挂载即可)
 RUN --mount=type=cache,id=npm,target=/root/.npm \
     --mount=type=bind,target=/opt/dnspod-ddns/package.json,source=package.json \
-    --mount=type=bind,target=/opt/dnspod-ddns/package-lock.json,source=package-lock.json,readwrite \
+    --mount=type=bind,target=/opt/dnspod-ddns/package-lock.json,source=package-lock.json \
     --mount=type=bind,target=/opt/dnspod-ddns/modules/,source=modules/ \
-    node modules/ci.js && npm ci --omit=dev --omit=optional --no-audit --no-fund --progress=false
+    node modules/ci.js && npm ci --omit=dev --omit=optional --no-audit --no-fund --progress=false --registry="$(cat .cache/ci-registry)" --replace-registry-host=always
 
 FROM node:${NODE_VERSION} AS runtime
 WORKDIR /opt/dnspod-ddns
