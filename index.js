@@ -6,6 +6,7 @@ import { networkInterfaces } from "os";
 import { CronJob, sendAt, CronTime } from "cron";
 import { ISO } from "./modules/toLocalTimeZoneStrings.js";
 import apiRequest from "./modules/dnspod-api.js";
+import writeHeartbeat from "./modules/heartbeat.js";
 const record_types = {
     IPv4: "A",
     IPv6: "AAAA",
@@ -85,6 +86,8 @@ CronJob.from({
         console.error("本轮任务执行出错,等待下次运行重试:", error);
     },
     onTick: async () => {
+        // 心跳:证明事件循环存活且 cron 按计划触发,healthcheck.js 依赖此文件的 mtime 判活
+        writeHeartbeat();
         const networkInterfacesObject = networkInterfaces();
         const { [networkInterfaceName]: networkInterface } = networkInterfacesObject;
 

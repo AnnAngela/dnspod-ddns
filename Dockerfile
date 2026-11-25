@@ -16,11 +16,14 @@ WORKDIR /opt/dnspod-ddns
 ENV NODE_ENV=production \
     npm_config_loglevel=warn
 
-COPY index.js ./
+COPY index.js healthcheck.js ./
 # 2025-11 BuildKit 缓存重构时误删了 modules/ 与 package.json 的 COPY:
 # index.js 依赖 modules/,dnspod-api.js 顶层读取 package.json,缺失则镜像启动即 ENOENT
 COPY modules/ ./modules/
 COPY package.json ./package.json
 COPY --from=build /opt/dnspod-ddns/node_modules ./node_modules/
+
+# 心跳健康检查:进程假死但容器未退出时(Docker 无从感知)向 Docker/DSM 暴露 unhealthy
+HEALTHCHECK --interval=5m --timeout=10s --retries=2 --start-period=5m CMD ["node", "healthcheck.js"]
 
 ENTRYPOINT ["node", "index.js"]
