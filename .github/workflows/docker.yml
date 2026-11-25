@@ -92,7 +92,10 @@ jobs:
           NETWORK_INTERFACE_NAME: "__smoke__"
         run: |
           set +e
-          output=$(docker run --rm dnspod-ddns:smoke 2>&1)
+          # step 的 env 只作用于当前 shell,须显式 -e 传入容器,否则 DNSPOD_ID 等为 undefined
+          output=$(docker run --rm \
+            -e DNSPOD_ID -e DNSPOD_TOKEN -e DNSPOD_DOMAIN -e NETWORK_INTERFACE_NAME \
+            dnspod-ddns:smoke 2>&1)
           code=$?
           set -e
           echo "$output"
