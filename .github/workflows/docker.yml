@@ -68,6 +68,43 @@ jobs:
             type=sha
             type=sha,format=long
 
+      # 非 tag 事件(PR / master push / dependabot 分支):单架构构建镜像到本地并实际运行。
+      # 只 build 不 run 曾让"runtime 阶段丢失 modules/ 与 package.json 的 COPY"这一打包 bug
+      # 潜伏未被发觉(构建成功、启动即 ENOENT 崩溃),必须在发布前真正跑一次镜像。
+      - name: Build image locally for smoke test
+        if: github.event.ref_type != 'tag'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: dnspod-ddns:smoke
+          cache-from: type=gha
+
+      - name: Smoke run image (expect startup + interface-not-found exit)
+        if: github.event.ref_type != 'tag'
+        env:
+          DNSPOD_ID: "12345"
+          DNSPOD_TOKEN: "smoke-test-token"
+          DNSPOD_DOMAIN: "example.com"
+          NETWORK_INTERFACE_NAME: "__smoke__"
+        run: |
+          set +e
+          output=$(docker run --rm dnspod-ddns:smoke 2>&1)
+          code=$?
+          set -e
+          echo "$output"
+          if [ "$code" -ne 1 ]; then
+            echo "::error::镜像冒烟期待退出码 1(网卡不存在路径),实际为 $code"
+            exit 1
+          fi
+          if ! echo "$output" | grep -q "无法获取 IP 地址"; then
+            echo "::error::镜像冒烟未输出预期的「无法获取 IP 地址」提示"
+            exit 1
+          fi
+
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build from Dockerfile and push Docker image

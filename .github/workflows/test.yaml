@@ -1,12 +1,32 @@
 name: test
 
 # This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
+# They are provided by a third-party and governed by
 # separate terms of service, privacy policy, and support
 # documentation.
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - "index.js"
+      - "healthcheck.js"
+      - "modules"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/test.yaml"
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "index.js"
+      - "healthcheck.js"
+      - "modules"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/test.yaml"
 
 jobs:
   test:
@@ -31,3 +51,32 @@ jobs:
 
       - name: test
         run: node modules/ci.js && npm ci && npm prune --omit=dev && npx node-prune --yes
+
+      # 无网络冒烟:伪造不存在的网卡名,runOnInit 会立即触发 onTick 走"网卡不存在"退出路径,
+      # 覆盖启动解析、CronJob 创建、首跳、心跳写入全链路,全程零网络请求。
+      # 背景:cron v2→v4 等依赖升级曾长期无任何运行时验证,直到生产事故才暴露。
+      - name: Smoke test (startup + first cron fire, no network)
+        env:
+          DNSPOD_ID: "12345"
+          DNSPOD_TOKEN: "smoke-test-token"
+          DNSPOD_DOMAIN: "example.com"
+          NETWORK_INTERFACE_NAME: "__smoke__"
+        run: |
+          set +e
+          output=$(node index.js 2>&1)
+          code=$?
+          set -e
+          echo "$output"
+          if [ "$code" -ne 1 ]; then
+            echo "::error::冒烟测试期待退出码 1(网卡不存在路径),实际为 $code"
+            exit 1
+          fi
+          if ! echo "$output" | grep -q "无法获取 IP 地址"; then
+            echo "::error::冒烟测试未输出预期的「无法获取 IP 地址」提示"
+            exit 1
+          fi
+          if [ ! -f /tmp/dnspod-ddns-heartbeat ]; then
+            echo "::error::onTick 未写入心跳文件 /tmp/dnspod-ddns-heartbeat"
+            exit 1
+          fi
+          echo "冒烟测试通过"
