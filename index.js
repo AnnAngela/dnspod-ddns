@@ -1,4 +1,6 @@
 import console, { globalConsole } from "./modules/console.js";
+// 必须先于含顶层副作用的模块(如 dnspod-api.js 的顶层 await)注册进程级异常兜底
+import "./modules/fatal.js";
 console.info("Start initialization...");
 import { networkInterfaces } from "os";
 import { CronJob, sendAt, CronTime } from "cron";
@@ -77,6 +79,11 @@ CronJob.from({
     start: true,
     runOnInit: true,
     cronTime,
+    // cron v4 的 fireOnTick 会捕获 onTick 的同步抛错与 async 拒绝并转交 errorHandler,
+    // 网络抖动等瞬时异常记日志后等下一轮 cron 重试,不再形成 unhandled rejection
+    errorHandler: (error) => {
+        console.error("本轮任务执行出错,等待下次运行重试:", error);
+    },
     onTick: async () => {
         const networkInterfacesObject = networkInterfaces();
         const { [networkInterfaceName]: networkInterface } = networkInterfacesObject;
